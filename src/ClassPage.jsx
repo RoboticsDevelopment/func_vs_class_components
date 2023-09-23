@@ -1,6 +1,6 @@
 import React from "react";
 import { getRandomUser } from "./Utility/api";
-import Instructor from "./Instructor";
+import InstructorClass from "./InstructorClass";
 
 export default class ClassPage extends React.Component {
   constructor(props) {
@@ -103,7 +103,7 @@ export default class ClassPage extends React.Component {
           ></i>
 
           {!this.state.hideInstructor && this.state.instructor ? (
-            <Instructor instructor={this.state.instructor} />
+            <InstructorClass instructor={this.state.instructor} />
           ) : null}
         </div>
 

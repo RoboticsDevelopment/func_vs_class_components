@@ -1,6 +1,6 @@
 import React from "react";
 
-class Instructor extends React.Component {
+class InstructorClass extends React.Component {
   constructor(props) {
     super(props);
   }
@@ -15,4 +15,4 @@ class Instructor extends React.Component {
   }
 }
 
-export default Instructor;
+export default InstructorClass;

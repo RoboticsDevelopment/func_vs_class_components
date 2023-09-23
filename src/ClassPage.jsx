@@ -34,10 +34,33 @@ export default class ClassPage extends React.Component {
     }
   };
 
-  componentDidUpdate() {
+  componentDidUpdate = async (previousProps, previousState) => {
     console.log("Component Did Update");
     localStorage.setItem("classStateLocalStorage", JSON.stringify(this.state));
-  }
+    console.log("Old State - " + previousState.studentCount);
+    console.log("New State - " + this.state.studentCount);
+    if (previousState.studentCount < this.state.studentCount) {
+      const response = await getRandomUser();
+      this.setState((prevState) => {
+        return {
+          studentList: [
+            ...prevState.studentList,
+            {
+              name: response.data.first_name + " " + response.data.last_name,
+              gender: response.data.gender,
+              avatar: response.data.avatar,
+            },
+          ],
+        };
+      });
+    } else if (previousState.studentCount > this.state.studentCount) {
+      this.setState((prevState) => {
+        return {
+          studentList: [],
+        };
+      });
+    }
+  };
 
   componentWillUnmount() {
     console.log("Component Will Unmount");
@@ -79,7 +102,7 @@ export default class ClassPage extends React.Component {
             onClick={this.handleToggleInstructor}
           ></i>
 
-          {!this.state.hideInstructor ? (
+          {!this.state.hideInstructor && this.state.instructor ? (
             <Instructor instructor={this.state.instructor} />
           ) : null}
         </div>
@@ -119,9 +142,20 @@ export default class ClassPage extends React.Component {
           <button
             className="btn btn-danger btn-sm"
             onClick={this.handleRemoveAllStudents}
-          >
+          >  
             Remove All Students
           </button>
+          {this.state.studentList.map((student, index) => {
+            return (
+              <>
+                <div className="text-white" key={index}>
+                  - <img src={student.avatar} alt="" height="30px" />{" "}
+                  {student.name} ({student.gender})
+                </div>
+              </>
+            );
+          })}
+        
         </div>
       </div>
     );

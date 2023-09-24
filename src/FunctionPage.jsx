@@ -1,6 +1,6 @@
-import  React, {useState} from "react";
+import React, { useState, useEffect } from "react";
 import { getRandomUser } from "./Utility/api";
-import InstructorClass from "./InstructorClass";
+import InstructorFunction from "./InstructorFunction";
 
 const FunctionPage = () => {
   const [state, setState] = useState(() => {
@@ -19,27 +19,17 @@ const FunctionPage = () => {
     return "";
   });
 
-  /* constructor(props) {
-    super(props);
-    this.state = JSON.parse(localStorage.getItem("classStateLocalStorage")) || {
-      instructor: undefined,
-      studentList: [],
-      studentCount: 0,
-      hideInstructor: false,
-      inputName: "",
-      inputFeedback: "",
-    };
-  } */
+  useEffect(() => {
+    console.log("This will be called on EVERY Render");
+  });
 
-  /*   componentDidMount = async () => {
-    console.log("Component Did Mount");
-    if (JSON.parse(localStorage.getItem("classStateLocalStorage"))) {
-      this.setState(JSON.parse(localStorage.getItem("classStateLocalStorage")));
-    } else {
+  useEffect(() => {
+    console.log("This will be called on Initial/first Render/Mount");
+    const getUser = async () => {
       const response = await getRandomUser();
-      console.log(response);
-      this.setState((prevState) => {
+      setState((prevState) => {
         return {
+          ...prevState,
           instructor: {
             name: response.data.first_name + " " + response.data.last_name,
             email: response.data.email,
@@ -47,10 +37,17 @@ const FunctionPage = () => {
           },
         };
       });
-    }
-  };
+    };
+    getUser();
+  }, [state.hideInstructor]); //Changes Instructor EVERYTIME instructor is toggled.
 
-  componentDidUpdate = async (previousProps, previousState) => {
+  useEffect(() => {
+    console.log(
+      "This will be called on whenever value of hideInstructor changes"
+    );
+  }, [state.hideInstructor]);
+
+  /* componentDidUpdate = async (previousProps, previousState) => {
     console.log("Component Did Update");
     localStorage.setItem("classStateLocalStorage", JSON.stringify(this.state));
     console.log("Old State - " + previousState.studentCount);
@@ -76,11 +73,7 @@ const FunctionPage = () => {
         };
       });
     }
-  };
-
-  componentWillUnmount() {
-    console.log("Component Will Unmount");
-  } */
+  }; */
 
   const handleAddStudent = () => {
     setState((prevState) => {
@@ -121,7 +114,7 @@ const FunctionPage = () => {
         ></i>
 
         {!state.hideInstructor && state.instructor ? (
-          <InstructorClass instructor={state.instructor} />
+          <InstructorFunction instructor={state.instructor} />
         ) : null}
       </div>
 
@@ -133,7 +126,7 @@ const FunctionPage = () => {
           value={state.inputName}
           placeholder="Name.."
           onChange={(e) => {
-            setInputName( e.target.value );
+            setInputName(e.target.value);
           }}
         ></input>
         Value: {inputName}
@@ -141,7 +134,7 @@ const FunctionPage = () => {
         <textarea
           value={inputFeedback}
           onChange={(e) => {
-            setInputFeedback( e.target.value );
+            setInputFeedback(e.target.value);
           }}
           placeholder="Feedback..."
         ></textarea>

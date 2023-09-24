@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useId } from "react";
 import { getRandomUser } from "./Utility/api";
 import InstructorFunction from "./InstructorFunction";
 
@@ -12,6 +12,12 @@ const FunctionPage = () => {
     };
   });
 
+  //const [totalRender, setTotalRender] = useState(0);
+  const totalRender = useRef(0);
+  const prevStudentCount = useRef(0);
+  const feedbackInputRef = useRef(null);
+  const Id = useId();
+
   const [inputName, setInputName] = useState(() => {
     return "";
   });
@@ -20,11 +26,13 @@ const FunctionPage = () => {
   });
 
   useEffect(() => {
-    console.log("This will be called on EVERY Render");
+    //setTotalRender((prevState)=>prevState+1)
+    totalRender.current = totalRender.current + 1;
+    console.log("render" + totalRender.current);
   });
 
   useEffect(() => {
-    console.log("This will be called on Initial/first Render/Mount");
+    console.log("This will be called on when hideInstructor");
     const getUser = async () => {
       const response = await getRandomUser();
       setState((prevState) => {
@@ -38,24 +46,18 @@ const FunctionPage = () => {
         };
       });
     };
-    getUser();
+    if (!state.hideInstructor) {
+      getUser();
+    }
   }, [state.hideInstructor]); //Changes Instructor EVERYTIME instructor is toggled.
 
   useEffect(() => {
-    console.log(
-      "This will be called on whenever value of hideInstructor changes"
-    );
-  }, [state.hideInstructor]);
-
-  /* componentDidUpdate = async (previousProps, previousState) => {
-    console.log("Component Did Update");
-    localStorage.setItem("classStateLocalStorage", JSON.stringify(this.state));
-    console.log("Old State - " + previousState.studentCount);
-    console.log("New State - " + this.state.studentCount);
-    if (previousState.studentCount < this.state.studentCount) {
+    console.log("This will be called on when studentCount");
+    const getUser = async () => {
       const response = await getRandomUser();
-      this.setState((prevState) => {
+      setState((prevState) => {
         return {
+          ...prevState,
           studentList: [
             ...prevState.studentList,
             {
@@ -66,14 +68,24 @@ const FunctionPage = () => {
           ],
         };
       });
-    } else if (previousState.studentCount > this.state.studentCount) {
-      this.setState((prevState) => {
-        return {
-          studentList: [],
-        };
+    };
+    if (prevStudentCount.current < state.studentCount) {
+      getUser();
+    } else if (prevStudentCount.current > state.studentCount) {
+      setState((prevState) => {
+        return { ...prevState, studentList: [] };
       });
     }
-  }; */
+  }, [state.studentCount]);
+
+  useEffect(() => {
+    //setTotalRender((prevState)=>prevState+1)
+    prevStudentCount.current = state.studentCount;
+  }, [state.studentCount]);
+
+  useEffect(() => {
+    feedbackInputRef.current.focus();
+  }, []);
 
   const handleAddStudent = () => {
     setState((prevState) => {
@@ -117,28 +129,32 @@ const FunctionPage = () => {
           <InstructorFunction instructor={state.instructor} />
         ) : null}
       </div>
-
+      <div className="p-3">Total Render: {totalRender.current}</div>
       <div className="p-3">
         <span className="h4 text-success">Feedback</span>
         <br />
         <input
           type="text"
-          value={state.inputName}
+          value={inputName}
           placeholder="Name.."
           onChange={(e) => {
             setInputName(e.target.value);
           }}
-        ></input>
-        Value: {inputName}
+          id={`${Id}-inputName`}
+        ></input>{" "}
+        <label htmlFor={`${Id}-inputName`}>Name Value: </label> {inputName}
         <br />
         <textarea
           value={inputFeedback}
+          ref={feedbackInputRef}
+          id={`${Id}-inputFeedback`}
           onChange={(e) => {
             setInputFeedback(e.target.value);
           }}
           placeholder="Feedback..."
         ></textarea>
-        Value: {inputFeedback}
+        <label htmlFor={`${Id}-inputFeedback`}>Feedback Value: </label>{" "}
+        {inputFeedback}
       </div>
       <div className="p-3">
         <span className="h4 text-success">Students</span> <br />
